@@ -1,92 +1,293 @@
-# Helm
+# Helm Kubernetes Packaging Manager for Developers and DevOps on Udemy
 
 
+https://helm.sh/docs/
 
-## Getting started
+# Section 2 Helm Fundamentals#
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## 5 Before Helm ##
+- Needed to create a deployment and service and all objects for each piece of an app, example the app itself and the database needed.
+- All the files are static, cannot take different variables
+- Did not have any revision history, helm provides this among many other features
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## 6 What is Helm ##
+- written in google GO language
+- package manager for kubernetes
+- takes the package we want and installs/upgrades/uninstalls for us
+- works with charts, charts are our packages
+- charts includes all the template files and configurations required to create Kubernetes resources
+- can use helm to pull charts and install dependencies we want, 
 
-## Add your files
+        "helm install apache bitnami/apache -namespace=web" 
+        
+would install the apache chart
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+- upgrade
 
-```
-cd existing_repo
-git remote add origin https://gitlab.com/cfech44/helm.git
-git branch -M main
-git push -uf origin main
-```
+        "helm upgrade apache bitnami/apache -namespace=web" 
 
-## Integrate with your tools
+- rollback
 
-- [ ] [Set up project integrations](https://gitlab.com/cfech44/helm/-/settings/integrations)
+        "helm rollback apache 1 -namespace=web" 
 
-## Collaborate with your team
+- uninstall
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+        helm uninstall apache
 
-## Test and Deploy
+## 7 Why Use Helm ##
 
-Use the built-in continuous integration in GitLab.
+- helm simplifies kubernetes deployment process by extracting out complexity
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+- if we need to install a mongodb in a kubernetes cluster we would need to figure out all the pieces needed such as deployment, service, configmap, which can be overwhelming
 
-***
+- with helm we just want to pull a mongodb chart from a chart repository
 
-# Editing this README
+- this chart has all the required resources and comes with default values with can override if necessary
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!).  Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+- helm can will kep history of our revisions
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+- Helm combines templates with values from a values.yml to create dynamic kubernetes deployments
 
-## Name
-Choose a self-explaining name for your project.
+- Use helm cli instead of kubectl to update deployments
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+- helm utilizes intelligent deployments, it will know which order to create kubernetes resources, we dont have to specify
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+- utilizes life cycle hooks, they can be hooked into the lifecycle of the application 
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+- built in support for charts downloaded from the repository. Verifies signatures and hashes when installing packages. 
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+## 8 Charts and Repos ##
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+- Charts are stored in chart repositories , bitnami is a famous one
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+https://bitnami.com/stacks/helm
+https://github.com/bitnami/charts
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+## 9 Installing Helm ##
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+### Setting up AWS VDI ###
+- installed homebrew
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+- vscode 
 
-## License
-For open source projects, say how it is licensed.
+https://code.visualstudio.com/docs/setup/linux
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+        sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+        
+        sudo sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo'
+
+        yum check-update
+        
+        sudo yum install code
+        
+
+- installed chrome
+
+        sudo curl https://intoli.com/install-google-chrome.sh | bash
+
+- installed helm with homebrew
+**helm should be using the same config file as kubectl**
+        brew install helm
+
+https://www.devopszones.com/2022/01/how-to-install-minikube-in-amazon-linux.html
+
+- install docker as hypervisor for minikube 
+
+        sudo yum install docker 
+
+        sudo docker start #start docker daemon
+
+        # have to change so non root user can run docker commands, must run from root dir
+
+        sudo chmod 666 var/run/docker.sock
+
+
+- installed conntrack for minkube setup
+
+        sudo yum install conntrack
+
+- installed kubectl with homebrew
+
+
+        brew install kubectl
+
+- updated yum
+
+        sudo yum update -y 
+
+- installed minikube 
+
+        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+
+        sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
+- have to start minikube
+
+        minikube start --vm-driver=none
+
+- other commands
+
+        minikube status
+        minikube delete 
+
+        minikube dashboard
+
+        minikube pause
+
+        minikube unpause
+
+        minikube update-context
+
+        minikube service
+
+        minikube ssh # ssh into the node
+
+
+**helm should be using the same config file as kubectl**
+
+## 10 Working with chart repositories ##
+
+- helm does not come with any presintalled repos
+- see repos with 
+
+        helm repo list
+
+- can add with 
+
+        helm repo add bitnami https://charts.bitnami.com/bitnami
+                      [my name] [chart url]
+
+- can search through the repo with to see all the apache charts in the repo
+
+        helm search repo apache 
+                         [name]
+- will show the app version chart version and description
+
+- to see all versions
+
+        helm search repo apache --version
+
+- to remove repo
+
+        helm repo remove bitnami
+                        [name]
+
+## 11 The Magic of Helm ##
+
+### minikube connection issue ###
+https://lifesaver.codes/answer/hyperkit-+-docker-proxy-get-https-registry-1-docker-io-v2-net-http-request-canceled-while-waiting-for-connection-4589
+
+- installing a package with helm
+
+        helm install mydb bitnami/mysql 
+                    [my name ] [chart to be used]
+
+        helm uninstall mydb
+
+- name must be unique to namespace
+        
+        NAME: mydb
+        LAST DEPLOYED: Fri May 20 18:01:44 2022
+        NAMESPACE: default
+        STATUS: deployed
+        REVISION: 1
+        TEST SUITE: None
+        NOTES:
+        CHART NAME: mysql
+        CHART VERSION: 9.0.3
+        APP VERSION: 8.0.29
+
+        ** Please be patient while the chart is being deployed **
+
+        Tip:
+
+        Watch the deployment status using the command: kubectl get pods -w --namespace default
+
+        Services:
+
+        echo Primary: mydb-mysql.default.svc.cluster.local:3306
+
+        Execute the following to get the administrator credentials:
+
+        echo Username: root
+        MYSQL_ROOT_PASSWORD=$(kubectl get secret --namespace default mydb-mysql -o jsonpath="{.data.mysql-root-password}" | base64 --decode)
+
+        To connect to your database:
+
+        1. Run a pod that you can use as a client:
+
+            kubectl run mydb-mysql-client --rm --tty -i --restart='Never' --image  docker.io/bitnami/mysql:8.0.29-debian-10-r22 --namespace default --env MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD --command -- bash
+
+        2. To connect to primary service (read/write):
+
+            mysql -h mydb-mysql.default.svc.cluster.local -uroot -p"$MYSQL_ROOT_PASSWORD"
+
+
+## 12 Using same installation name ##
+
+- cannot use mydb again if it already exists in the same namespace 
+
+- could make the install a different name or create a new namespace with 
+
+        kubectl create ns namespace2
+                            [my name]
+
+        helm install --namespace namespace2 mydb bitnami/mysql
+## 13 List and Uninstall ##
+- how to list all packages installed on cluster
+
+    helm list
+
+-- to remove a package from cluster 
+
+    helm uninstall [name]
+
+
+    Minikub start
+
+Kubectl 
+Helm 
+Minikube ssh
+
+Minkube dashboard
+
+## 14 Providing custom values ##
+
+## 15 Helm Upgrade ##
+
+## 16 More about upgrade ##
+
+## 13 List and Uninstall ##
+
+
+## Other stuff ##
+        
+        # .bashrc
+
+        # Source global definitions
+        if [ -f /etc/bashrc ]; then
+        . /etc/bashrc
+        fi
+
+        # Uncomment the following line if you don't like systemctl's auto-paging feature:
+        # export SYSTEMD_PAGER=
+
+        # User specific aliases and functions
+
+
+        # .bash_profile
+
+        # Get the aliases and functions
+        if [ -f ~/.bashrc ]; then
+        . ~/.bashrc
+        fi
+
+        # User specific environment and startup programs
+
+        PATH=$PATH:$HOME/.local/bin:$HOME/bin
+
+        export PATH
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
