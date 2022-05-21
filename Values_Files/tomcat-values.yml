@@ -1,0 +1,4 @@
+tomcatPassword: mypass
+service:
+  type: NodePort
+  nodePort: 3007

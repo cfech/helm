@@ -2,6 +2,7 @@
 
 
 https://helm.sh/docs/
+https://helm.sh/docs/helm/
 
 # Section 2 Helm Fundamentals#
 
@@ -63,6 +64,8 @@ would install the apache chart
 
 https://bitnami.com/stacks/helm
 https://github.com/bitnami/charts
+
+# Section 3 Helm In Action #
 
 ## 9 Installing Helm ##
 
@@ -241,26 +244,293 @@ https://lifesaver.codes/answer/hyperkit-+-docker-proxy-get-https-registry-1-dock
 
     helm list
 
--- to remove a package from cluster 
+- to remove a package from cluster 
 
     helm uninstall [name]
 
 
     Minikub start
 
-Kubectl 
-Helm 
-Minikube ssh
-
-Minkube dashboard
 
 ## 14 Providing custom values ##
+- providing a custom password to our mysql instance
+
+
+                helm install mydb bitnami/mysql --set auth.rootPassword = test12345
+                                                 [--set passes in custom config]
+
+- recommended way is to pass in a values.yaml file, not just pass through set, set is fine for 1 off
+
+                helm install mydb bitnami/mysql --values values.yml
+
+                helm install mydb bitnami/mysql --values ~/Desktop/values.yml
+                                                           [path]
+- inside values.yml
+
+                auth:
+                  rootPassword: "test1234"
 
 ## 15 Helm Upgrade ##
 
+- update charts in local cache
+
+        helm repo update 
+
+- checks status and gives us the update info
+
+        helm status mydb
+                    [name]    
+
+- to upgrade 
+
+        helm upgrade mydb bitnami/mysql --values ~/Desktop/values.yml
+
 ## 16 More about upgrade ##
 
-## 13 List and Uninstall ##
+- if you dont pass in the values it will use the default configuration or could use 
+
+        helm upgrade mydb bitnami/mysql --reuse-values
+
+## 17 Release Records ##
+
+- see all helm installs
+
+        helm ls
+
+- get kubernetes secrets, secret includes all the info about the release, useful when we are using rollbacks
+
+        kubectl get secrets
+
+- could retain secrets if we use flag --keep-history
+
+
+        helm uninstall mydb --keep-history
+## Quiz 1 ##
+- helm in action
+
+Question 1:
+Which of the following command will list all the helm repositories
+
+        helm repo ls
+
+Question 2:
+We can re-use the same release/installation name when a release with that name already exists
+
+        false
+
+Question 3:
+We can use the same release/installation name in a namespace even when a release with that name already exists in another namespace
+
+        true, name is only specific to the namespace
+
+Question 4:
+Helm uses which of the following kubernetes resources to store release information
+
+        secret
+
+Question 5:
+When we do a helm uninstall all the release information stored in kube secrets will be deleted
+
+        true, except if we use the --keep-secrets flag
+
+## Assignment 1 ##
+
+- install the tomcat web server, bitnami/tomcat
+
+       helm install tomcatserver bitnami/tomcat
+        
+- output 
+                
+                NAME: tomcatserver
+                LAST DEPLOYED: Sat May 21 18:55:12 2022
+                NAMESPACE: default
+                STATUS: deployed
+                REVISION: 1
+                TEST SUITE: None
+                NOTES:
+                CHART NAME: tomcat
+                CHART VERSION: 10.2.3
+                APP VERSION: 10.0.21
+
+                ** Please be patient while the chart is being deployed **
+
+                1. Get the Tomcat URL by running:
+
+                NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+                        Watch the status with: 'kubectl get svc --namespace default -w tomcatserver'
+
+                export SERVICE_IP=$(kubectl get svc --namespace default tomcatserver --template "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}")
+                echo "Tomcat URL:            http://$SERVICE_IP:/"
+                echo "Tomcat Management URL: http://$SERVICE_IP:/manager"
+
+                2. Login with the following credentials
+
+                echo Username: user
+                echo Password: $(kubectl get secret --namespace default tomcatserver -o jsonpath="{.data.tomcat-password}" | base64 --decode)
+
+
+
+- get the tomcat password
+
+        echo Password: $(kubectl get secret --namespace default tomcatserver -o jsonpath="{.data.tomcat-password}" | base64 --decode)
+        
+- upgrade tomcat, pass it the password and change the service type to NodePort via tomcat-values.yml
+
+        helm upgrade tomcatserver bitnami/tomcat --values ~/Desktop/tomcat-values.yml
+
+- tomcat-values.yml
+
+                tomcatPassword: UJcEOFqGiA
+                service:
+                  type: NodePort
+                  nodePort: 30007
+
+
+- uninstall the tomcat server
+
+        helm uninstall tomcatserver
+
+# Section 4 Advanced Commands #
+
+## 18 Helm Release Workflow ##
+
+- step 1: helm loads the chart
+- step 2: parse the values.yml
+- step 3: generate the final yml files by injecting the values into the templates
+- step 4: parse the yml and validate the schema against kubernetes object requirements
+- step 5: Generate yml and send to kubernetes
+
+## 19 Helm Dry Run ##
+
+- helm --dry-run 
+
+        helm install mydb bitnami/mysql --values file/path/yml --dry-run
+
+- dry run performs the first 4 steps but never actually sends the yml for kubernetes for object creation, this will tell us if we have any error along the way in our helm charts though 
+
+- it will show all of the real yml files that will be submitted to kubernetes
+
+- for mysql a serviceAccount, Secret, ConfigMap, Service, StatefulSet (Creates the pods), last section is the release notes
+
+- the dry run commands provide some non valid yml
+- can have dry runs for upgrades and installs
+
+StatefulSet vs Deployment?
+
+https://cloud.netapp.com/blog/cvo-blg-kubernetes-deployment-vs-statefulset-which-is-right-for-you
+
+## 20 Helm Template ##
+        helm template mydb bitnami/mysql --values /path/to/values.yml
+
+- also goes through the first four steps of generating the yml, this gives us the exact yml that will be passed to the cluster
+- does not validate the output with kubernetes cluster so can be run without a cluster
+
+- i guess just to practice?
+
+**Always acts like an installation**
+
+
+## 21 More About Release Records ##
+
+- helm generates a secret for each release, this holds every file we would need to generate a new copy of the exact same thing that is deployed, 
+
+- view secrets with 
+
+        kubectl get secret
+
+- view what is in the secret with 
+
+        kubectl get secret [secret name] -o yaml
+                                        [output yaml format]
+
+- output is encoded in base 64, it can be decoded if necessary, it can then be rolled back there if necessary. (Other options for rollback as well) 
+
+
+
+## 22 Helm Get ##
+
+- see notes of the installation 
+
+
+        helm get notes mydb
+                        [name of installation]
+
+- show all the custom values we have used in the file , all shows the default's, --revision will show the values for that specific revision
+
+        helm get values mydb [--all] [--revision 1]
+                  [installation name]
+
+- get the manifest or entire template currently being used
+
+        helm get manifest mydb [--revision]
+
+
+## 23 Helm History ##
+
+- show the history , with successful deployments and errors throughout the history
+
+        helm history mydb
+
+## 24 Helm Rollback ##
+
+- to rollback
+
+        helm rollback mydb 1
+                        [name] [version]
+
+## 25 Create Namespace ##
+
+- can create new namespace with 
+
+        helm install mywebserver bitnami/apache --namespace mynamespace --create-namespace 
+
+- can then see installation with 
+
+        helm ls --namespace mynamespace
+
+- to see all namspaces
+
+        kubectl get namespace
+
+- to delete namespace 
+
+        kubectl delete namspace mynamspace 
+
+## 26 Install or Upgrade ##
+
+
+- to upgrade or install, it will first check if the installation is there, if so upgrade, else install
+
+        helm upgrade --install mywebserver bitnami/apache
+
+
+## 27 Generate Release Names ##
+
+        
+
+## 28 Wait and Timeout ##
+
+
+## 29 Atomic Install ##
+
+## 30 Forcefull Upgrades ##
+
+## 31 Clean Up on Failed Updates ##
+
+## 30 Forceful Upgrades ##
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ## Other stuff ##
@@ -291,3 +561,11 @@ Minkube dashboard
 
         export PATH
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+
+# COMMANDS #
+                Kubectl 
+                Helm 
+                Minikube ssh
+
+                Minkube dashboard
