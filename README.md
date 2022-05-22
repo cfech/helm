@@ -37,7 +37,7 @@ would install the apache chart
 
 ## 7 Why Use Helm ##
 
-- helm simplifies kubernetes deployment process by extracting out complexity
+- helm simplifies kubernetes installation process by extracting out complexity
 
 - if we need to install a mongodb in a kubernetes cluster we would need to figure out all the pieces needed such as deployment, service, configmap, which can be overwhelming
 
@@ -47,11 +47,11 @@ would install the apache chart
 
 - helm can will kep history of our revisions
 
-- Helm combines templates with values from a values.yml to create dynamic kubernetes deployments
+- Helm combines templates with values from a values.yml to create dynamic kubernetes installations
 
-- Use helm cli instead of kubectl to update deployments
+- Use helm cli instead of kubectl to update installations
 
-- helm utilizes intelligent deployments, it will know which order to create kubernetes resources, we dont have to specify
+- helm utilizes intelligent installations, it will know which order to create kubernetes resources, we dont have to specify
 
 - utilizes life cycle hooks, they can be hooked into the lifecycle of the application 
 
@@ -108,7 +108,7 @@ https://www.devopszones.com/2022/01/how-to-install-minikube-in-amazon-linux.html
         sudo chmod 666 var/run/docker.sock
 
 
-- installed conntrack for minkube setup
+- installed conntrack for minikube setup
 
         sudo yum install conntrack
 
@@ -207,7 +207,7 @@ https://lifesaver.codes/answer/hyperkit-+-docker-proxy-get-https-registry-1-dock
 
         Tip:
 
-        Watch the deployment status using the command: kubectl get pods -w --namespace default
+        Watch the installation status using the command: kubectl get pods -w --namespace default
 
         Services:
 
@@ -420,6 +420,7 @@ StatefulSet vs Deployment?
 https://cloud.netapp.com/blog/cvo-blg-kubernetes-deployment-vs-statefulset-which-is-right-for-you
 
 ## 20 Helm Template ##
+        
         helm template mydb bitnami/mysql --values /path/to/values.yml
 
 - also goes through the first four steps of generating the yml, this gives us the exact yml that will be passed to the cluster
@@ -460,14 +461,14 @@ https://cloud.netapp.com/blog/cvo-blg-kubernetes-deployment-vs-statefulset-which
         helm get values mydb [--all] [--revision 1]
                   [installation name]
 
-- get the manifest or entire template currently being used
+- get the manifest or entire yml currently being used, with values already injected
 
         helm get manifest mydb [--revision]
 
 
 ## 23 Helm History ##
 
-- show the history , with successful deployments and errors throughout the history
+- show the history , with successful installations and errors throughout the history
 
         helm history mydb
 
@@ -506,19 +507,312 @@ https://cloud.netapp.com/blog/cvo-blg-kubernetes-deployment-vs-statefulset-which
 
 ## 27 Generate Release Names ##
 
-        
+- can have helm generate a name automatically for us if we want
+
+        helm install bitnami/apache --generate-name         
+
+- can also provide a template for name generation, will generate a name with mywebserver-[7 random lower case letters ], randAlpha and lower case are functions, we pipe the output of randAlpha to the function lower
+
+        helm install bitnami/apache --generate-name --name-template "mywebserver-{{randAlpha 7 | lower}}
 
 ## 28 Wait and Timeout ##
 
+- by default helm does not wait for the pods to be up and running to be considered successful, it usually just wait until the handoff of the yml to kubernetes, we can tell it to wait with with the --wait flag , by default it will wait for 5 mins, can change timeout if we want 
+
+        helm install mywebserver bitnami/apache --wait [--timeout 5m10s]
+
 
 ## 29 Atomic Install ##
+- if we use the wait and and timeout flags but our pod is not up and running in that time period, the installation will be marked as a failure, we can use the --atomic flag to always revert back the the previous successful release, if we do not specify a --wait and --timeout it will just use the default 5 min timer 
 
-## 30 Forcefull Upgrades ##
+        helm install mywebserver bitnami/apache --atomic
+
+## 30 Forceful Upgrades ##
+- when we do an upgrade kubernetes only touches the pods that will have changes, but if we have a requirement where we need all the pods rebuilt we can forcefully upgrade with --force
+
+- this cause helm to delete the installation and remake the whole thing. 
+
+        helm upgrade mywebserver bitnami/apache --force
 
 ## 31 Clean Up on Failed Updates ##
 
-## 30 Forceful Upgrades ##
+- will clean up all resources created if any upgrade fails such as configmaps, secrets, pv and pvcs etc ... Would not use this if need to debug
 
+        helm upgrade mywebserver bitnami/apache --cleanup-on-failure
+## Quiz 2 Commands Deep Dive ##
+
+Question 1:
+The "helm template" command validates the generated objects/yaml by communicating with Kubernetes
+        
+        false
+
+Question 2:
+Which of the following command give us all the values used for a particular installation
+
+        helm get values mydb --all
+                        [installation name]
+
+Question 3:
+helm get manifest returns the templates that were used for particular installation or upgrade
+
+        false, gets the filled in yml 
+
+Question 4:
+Which of the following flags should be used to retain version history while uninstalling a release
+
+        --keep-history
+
+Question 5:
+Which of the following can be used to specify a format while generating a name for the template
+
+        --name-template
+
+
+Question 6:
+If you want helm to wait for the pods to be up and running when you do a helm install which of the following options should be used
+
+        --wait
+
+Question 7:
+Which of the following should be used to rollback to a previous successful installation if the current installation fails
+
+        --atomic
+
+
+## Assignment 2 Advanced Commands ##
+
+- release tomcat to the kubernetes cluster with a generated name 
+        helm install bitnami/tomcat --generate-name --name-template "mws-{{randAlpha 2 | lower}}"
+
+- do a dry run to see the installation templates 
+
+        helm install bitnami/tomcat --generate-name --name-template "mws-{{randAlpha 2 | lower}}" --dry-run
+        
+- output 
+                NAME: mws-kt
+                LAST DEPLOYED: Sun May 22 00:13:11 2022
+                NAMESPACE: default
+                STATUS: pending-install
+                REVISION: 1
+                TEST SUITE: None
+                HOOKS:
+                MANIFEST:
+                ---
+                # Source: tomcat/templates/secrets.yaml
+                apiVersion: v1
+                kind: Secret
+                metadata:
+                name: mws-kt-tomcat
+                namespace: default
+                labels:
+                app.kubernetes.io/name: tomcat
+                helm.sh/chart: tomcat-10.2.3
+                app.kubernetes.io/instance: mws-kt
+                app.kubernetes.io/managed-by: Helm
+                type: Opaque
+                data:
+                tomcat-password: "c0E0VXVkU09qUA=="
+                ---
+                # Source: tomcat/templates/pvc.yaml
+                kind: PersistentVolumeClaim
+                apiVersion: v1
+                metadata:
+                name: mws-kt-tomcat
+                namespace: default
+                labels:
+                app.kubernetes.io/name: tomcat
+                helm.sh/chart: tomcat-10.2.3
+                app.kubernetes.io/instance: mws-kt
+                app.kubernetes.io/managed-by: Helm
+                spec:
+                accessModes:
+                - "ReadWriteOnce"
+                resources:
+                requests:
+                storage: "8Gi"
+                ---
+                # Source: tomcat/templates/svc.yaml
+                apiVersion: v1
+                kind: Service
+                metadata:
+                name: mws-kt-tomcat
+                namespace: default
+                labels:
+                app.kubernetes.io/name: tomcat
+                helm.sh/chart: tomcat-10.2.3
+                app.kubernetes.io/instance: mws-kt
+                app.kubernetes.io/managed-by: Helm
+                spec:
+                type: LoadBalancer
+                externalTrafficPolicy: "Cluster"
+                ports:
+                - name: http
+                port: 80
+                targetPort: http
+                selector: 
+                app.kubernetes.io/name: tomcat
+                app.kubernetes.io/instance: mws-kt
+                ---
+                # Source: tomcat/templates/deployment.yaml
+                apiVersion: apps/v1
+                kind: Deployment
+                metadata:
+                name: mws-kt-tomcat
+                namespace: default
+                labels:
+                app.kubernetes.io/name: tomcat
+                helm.sh/chart: tomcat-10.2.3
+                app.kubernetes.io/instance: mws-kt
+                app.kubernetes.io/managed-by: Helm
+                spec:
+                replicas: 1
+                selector:
+                matchLabels:
+                app.kubernetes.io/name: tomcat
+                app.kubernetes.io/instance: mws-kt
+                strategy:
+                type: RollingUpdate
+                template:
+                metadata:
+                labels:
+                app.kubernetes.io/name: tomcat
+                helm.sh/chart: tomcat-10.2.3
+                app.kubernetes.io/instance: mws-kt
+                app.kubernetes.io/managed-by: Helm
+                spec:
+
+                affinity:
+                podAffinity:
+
+                podAntiAffinity:
+                preferredDuringSchedulingIgnoredDuringExecution:
+                - podAffinityTerm:
+                labelSelector:
+                matchLabels:
+                app.kubernetes.io/name: tomcat
+                app.kubernetes.io/instance: mws-kt
+                namespaces:
+                - "default"
+                topologyKey: kubernetes.io/hostname
+                weight: 1
+                nodeAffinity:
+
+                securityContext:
+                fsGroup: 1001
+                initContainers:
+                containers:
+                - name: tomcat
+                image: docker.io/bitnami/tomcat:10.0.21-debian-10-r2
+                imagePullPolicy: "IfNotPresent"
+                securityContext:
+                runAsNonRoot: true
+                runAsUser: 1001
+                env:
+                - name: BITNAMI_DEBUG
+                value: "false"
+                - name: TOMCAT_USERNAME
+                value: "user"
+                - name: TOMCAT_PASSWORD
+                valueFrom:
+                secretKeyRef:
+                name: mws-kt-tomcat
+                key: tomcat-password
+                - name: TOMCAT_ALLOW_REMOTE_MANAGEMENT
+                value: "0"
+                ports:
+                - name: http
+                containerPort: 8080
+                livenessProbe:
+                httpGet:
+                path: /
+                port: http
+                failureThreshold: 6
+                initialDelaySeconds: 120
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 5
+                readinessProbe:
+                httpGet:
+                path: /
+                port: http
+                failureThreshold: 3
+                initialDelaySeconds: 30
+                periodSeconds: 5
+                successThreshold: 1
+                timeoutSeconds: 3
+                resources:
+                limits: {}
+                requests:
+                cpu: 300m
+                memory: 512Mi
+                volumeMounts:
+                - name: data
+                mountPath: /bitnami/tomcat
+                volumes:
+                - name: data
+                persistentVolumeClaim:
+                claimName: mws-kt-tomcat
+
+                NOTES:
+                CHART NAME: tomcat
+                CHART VERSION: 10.2.3
+                APP VERSION: 10.0.21
+
+                ** Please be patient while the chart is being deployed **
+
+                1. Get the Tomcat URL by running:
+
+                NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+                Watch the status with: 'kubectl get svc --namespace default -w mws-kt-tomcat'
+
+                export SERVICE_IP=$(kubectl get svc --namespace default mws-kt-tomcat --template "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}")
+                echo "Tomcat URL:            http://$SERVICE_IP:/"
+                echo "Tomcat Management URL: http://$SERVICE_IP:/manager"
+
+                2. Login with the following credentials
+
+                echo Username: user
+                echo Password: $(kubectl get secret --namespace default mws-kt-tomcat -o jsonpath="{.data.tomcat-password}" | base64 --decode)
+
+
+
+
+-  check the generated templates by passing in the templates options
+
+        helm template bitnami/tomcat --generate-name --name-template "mws-{{randAlpha 2 | lower}}"
+
+
+- get the release notes
+
+        helm get notes mws-de
+
+- this will give you notes 
+        helm status mws-de
+
+- get the release records/history? 
+
+        helm history mws-de
+- ouput 
+        REVISION	UPDATED                 	STATUS  	CHART        	APP VERSION	DESCRIPTION     
+        1       	Sun May 22 00:15:21 2022	deployed	tomcat-10.2.3	10.0.21    	Install complete
+
+
+- another usefull comand 
+
+        kubectl get secret sh.helm.release.v1.mws-de.v1 -o yaml
+                                [secret name]
+
+- list secrets with 
+
+        kubectl get secrets
+
+
+
+
+
+# Section 5 Creating Charts #
+
+## 33 Creating First Chart ##
 
 
 
@@ -562,10 +856,3 @@ https://cloud.netapp.com/blog/cvo-blg-kubernetes-deployment-vs-statefulset-which
         export PATH
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
-
-# COMMANDS #
-                Kubectl 
-                Helm 
-                Minikube ssh
-
-                Minkube dashboard
