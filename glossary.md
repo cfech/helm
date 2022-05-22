@@ -2,6 +2,8 @@
 
 # Minikube #
 
+https://gitlab.com/cfech44/docker#minikube
+
 - have to start minikube, can feed none to driver and will pickup docker, or could feed docker, vmware, virtualbox etc... 
 
         minikube start --vm-driver=none
@@ -37,9 +39,13 @@
 
 # Kubectl #
 
+https://gitlab.com/cfech44/docker#kubernetes
+
 - get all pods
 
     kubectl get pods 
+
+kubectl get pod fcc-firstchart-84bb59f994-xj4fv -o yaml
 
 - create new namespace
 
@@ -91,11 +97,11 @@
 
 - recommended way is to pass in a values.yaml file, not just pass through set, set is fine for 1 off
 
-                helm install mydb bitnami/mysql --values values.yml
+                helm install mydb bitnami/mysql --values values.yaml
 
-                helm install mydb bitnami/mysql --values ~/Desktop/values.yml
+                helm install mydb bitnami/mysql --values ~/Desktop/values.yaml
                                                            [path]
-- inside values.yml
+- inside values.yaml
 
                 auth:
                   rootPassword: "test1234"
@@ -109,13 +115,19 @@
         helm install bitnami/apache --generate-name --name-template "mywebserver-{{randAlpha 7 | lower}}
 
 
-- by default helm does not wait for the pods to be up and running to be considered successful, it usually just wait until the handoff of the yml to kubernetes, we can tell it to wait with with the --wait flag , by default it will wait for 5 mins, can change timeout if we want 
+- by default helm does not wait for the pods to be up and running to be considered successful, it usually just wait until the handoff of the yaml to kubernetes, we can tell it to wait with with the --wait flag , by default it will wait for 5 mins, can change timeout if we want 
 
         helm install mywebserver bitnami/apache --wait [--timeout 5m10s]
 
 - if we use the wait and and timeout flags but our pod is not up and running in that time period, the installation will be marked as a failure, we can use the --atomic flag to always revert back the the previous successful release, if we do not specify a --wait and --timeout it will just use the default 5 min timer 
 
         helm install mywebserver bitnami/apache --atomic
+
+
+- to install our own custom chart
+
+        helm install myfirstchart firstchart
+                       [name]      [path to chart]
 
 
 
@@ -127,7 +139,7 @@
 
 - to upgrade 
 
-        helm upgrade mydb bitnami/mysql --values ~/Desktop/values.yml
+        helm upgrade mydb bitnami/mysql --values ~/Desktop/values.yaml
 
 - to upgrade or install, it will first check if the installation is there, if so upgrade, else install
 
@@ -196,6 +208,24 @@
 
         helm repo remove bitnami
                         [name]
+
+## Charts ##
+
+- how to package a chart in order to distribute it across projects, deploy it though pipelines etc ...
+
+        helm package firstchart
+                        [chart name]
+
+- update dependencies 
+
+        helm package firstchart [--dependencies-update ] [-u (dependencies update shortcut)]
+                        [chart name]
+
+- change where the .tgz file goes with -d or --destination 
+
+        helm package firstchart --d file/path
+                        [chart name]
+
 ## Other ##
 - how to list all packages installed on cluster
 
@@ -214,11 +244,11 @@
 - dry run
 
 
-        helm install mydb bitnami/mysql --values file/path/yml --dry-run
+        helm install mydb bitnami/mysql --values file/path/yaml --dry-run
 
 - templates 
 
-    helm template mydb bitnami/mysql --values /path/to/values.yml
+    helm template mydb bitnami/mysql --values /path/to/values.yaml
 
 
 - see notes of the installation 
@@ -232,8 +262,12 @@
         helm get values mydb [--all] [--revision 1]
                   [installation name]
 
-- get the manifest or entire yml currently being used, with values already injected
+- get the manifest or entire yaml currently being used, with values already injected
 
         helm get manifest mydb [--revision]
 
 
+
+- lints our yaml files in the chart and checks if there are any syntax issues 
+
+        helm lint firstChart 
