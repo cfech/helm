@@ -431,6 +431,9 @@ https://cloud.netapp.com/blog/cvo-blg-kubernetes-deployment-vs-statefulset-which
 **Always acts like an installation**
 
 
+### Dry Run VS Template ###
+- dry run always communicates with kubernetes and does schema validation, template does not
+
 ## 21 More About Release Records ##
 
 - helm generates a secret for each release, this holds every file we would need to generate a new copy of the exact same thing that is deployed, 
@@ -1167,6 +1170,399 @@ https://helm.sh/docs/chart_template_guide/function_list/#nindent
 ## 48 Use With ##
 
 - with is another conditional
+- it will only display the item is something is present , here says if he have some values in >Values.my.countries then change them to yaml, format and inject them 
+
+- in toYaml . starts where with leaves off so at the list of countries, could use $. to start back at the .Values root
+
+        {{- with .Values.my.countries}}
+        {{"Output of with" | nindent 2}}
+        {{- toYaml . | nindent 2 -}}
+        {{- else -}}
+        {{"With conditional countries was empty" | nindent 2}}
+        {{- end }}
+
+## 49 Define Variables ##
+- can define custom variables if we want 
+
+        {{/*can assign variables*/}}
+        {{ $myBool := true}}
+        {{ $myString := "a string"}}
+        {{ $myNum := 5 }}
+
+        {{/*can also assign variables from the values file, once a variable is assigned it cannot later be overriden*/}}
+        {{ $myFlag := .Values.my.flag}}
+
+        {{- if $myBool }}
+        {{"My bool is true here is a string :"}}
+        {{$myString | nindent 2}}
+        {{- else }}
+        {{"My bool is false here is a number:" | nindent 2}}
+        {{$myNum | nindent 2}}
+        {{- end }}
+
+## 50 Using Loops ##
+        {{/* to loop we use range, . is the current value, can also manage indentation without the nindent fucntion */}}
+        looping:
+          {{- range .Values.my.loop}}
+          - {{"Here is a loop"}}
+          - {{.}}
+        {{- end }}
+
+## 51 Loop On Dict Types ##
+- to loop dictionaries/objects must assign the key and value to the dictionary and then can use the vars in the loop
+
+        {{/* looping through the image dictionary */}}
+        loopingDicts:
+        {{- range  $key, $value := .Values.image}}
+        - {{$key}}: {{$value}}
+        {{- end }}
+
+## 53 Debugging Templates ##
+- if you have a bug in your template, use dry run and template commands. Dry run performs validation, template does not
+
+## 54 Helm Get Manifest ##
+- can see the running manifest on the cluster by running
+
+        helm get manifest fcc
+                          [chart name]
+
+## 55 Helpers tpl File ##
+- define shared functions used across the chart
+- always starts with a name function to easily reference the chart name
+
+- uses syntax 
+        
+        comment on function
+        name of function, what is it called by
+        logic of section 
+        end of function
+
+- can use helper functions in other template helper functions by using the "include" function to include your created template function
+
+## 56 Create And Use Custom Templates ##
+- fololows this syntax 
+
+        {{/* my template comment */}}
+        {{- define "firstchart.mytemplatefunction" -}}
+        {{- .Values.myvalue}}
+        {{- end}}
+
+- include in a function file with the include function, have to pass in the "." as that is the overall object 
+
+        {{- include "firstchart,mytemplatefunction" .}}
+
+## Quiz 4 Templates Deep Dive ##
+
+Question 1:
+Which of the following represents the root object created by helm accessible in all the template files
+
+        . 
+
+Question 2:
+Which of the following is used to pipe multiple commands and pass output of one command to the next inside a template action
+
+
+        |
+
+Question 3:
+Which of the following helm templating functions can be used to convert objects to yaml
+
+
+        toYaml
+
+Question 4:
+Which of the following changes the scope of . from root to the current element
+
+
+        with
+
+Question 5:
+Which of the following operator is used to initially assign a value to a variable
+
+        :=
+
+Question 6:
+Once we assign a value to variable using a particular type if we assign a different type later it will have effect
+
+
+        false
+
+Question 7:
+Which of the following is used to loop in a template
+
+        range
+
+## Assignment 4 Create Chart ##
+see tc
+
+- create a chart
+
+        helm create tc
+
+- add tomcat as a dependency to chart yml under dependencies
+
+dependencies:
+  - name: tomcat
+    version: "10.1.21"
+    repository: "https://charts.bitnami.com/bitnami"
+
+- pass it some values 
+
+        tomcat:
+          service:
+            type: NodePort
+            nodePort: 30007
+
+- package the chart, -u to install the dependencies
+
+        helm package tc -u
+
+- install the chart
+
+        helm install tc tc-...tgz
+
+
+# Section 7 Advanced Charts #
+
+see /dependencies
+
+## 58 Add Dependencies ##
+- add the dependencies section at the bottom of a chart yaml file
+- can use local repo name if you know it, see all installed with ```helm repo list```
+
+
+        dependencies:
+          - name: mysql
+             version: "8.8.6"
+            repository: http://charts.bitnami.com/bitnmai
+
+
+- download the dependencies with, they are stored in the charts folder
+
+        helm dependency update myChart
+
+- then can just install the chart
+
+## 59 Using Version Range ##
+
+- can use a range of versions 
+
+- look for anything equal to or greater than this version
+        dependencies:
+          - name: mysql
+             version: ">=8.8.6"
+            repository: http://charts.bitnami.com/bitnmai
+
+- greater and less than option
+
+dependencies:
+          - name: mysql
+             version: ">=8.8.6 and < 9.0.0"
+            repository: http://charts.bitnami.com/bitnmai
+
+
+- advantage of this is to have the latest version out application can handle 
+
+
+- some special operators, the caret ^ and the tilde ~
+
+- ^ means , use the next major version 
+
+- can us placeholders for version ^1.3.x will look for the next major version less then 2.0.0
+
+- ~ orks for patching minor versions, ~1.3.4 will look for something > 1.3.4 < 1.4.0
+
+## 60 Using Repo Name ##
+- can use a local repo name instead of the url if you want
+
+        dependencies:
+          - name: mysql
+            version: ">=8.8.6 and < 9.0.0"
+            repository: @bitnami
+## 61 Use Dependencies Conditionally ##
+- define a property in values.yaml
+
+        mysql:
+          enabled: false
+
+- update the depenedencies in chart.yml with the condition flag 
+
+        dependencies:
+          - name: mysql
+            version: ">=8.8.6 and < 9.0.0"
+            repository: @bitnami
+            condition: mysql.enabled
+
+
+## 62 Use Multiple Conditional Dependencies ##
+
+- can just add it to the dependencies in the chart.yaml
+
+in values.yaml
+
+        apache:
+          enabled: true
+
+- in chart yaml 
+
+        dependencies:
+          - name: mysql
+            version: "8.8.6"
+            repository: http://charts.bitnami.com/bitnami
+            condition: mysql.enabled
+          - name: apache
+            version: "8.8.6"
+            repository: http://charts.bitnami.com/bitnami
+            condition: apache.enabled
+
+- while the above would work instead of having to have multiple listed we could utilize the tags , tags takes a list of values
+
+- now our chart.yaml  is 
+
+        dependencies:
+          - name: mysql
+            version: "8.8.6"
+            repository: http://charts.bitnami.com/bitnami
+            tags:
+              - enabled
+
+          - name: apache
+            version: "8.8.6"
+            repository: http://charts.bitnami.com/bitnami
+            tags:
+              - enabled
+
+- values.yaml 
+
+        tags:
+          enabled: true
+
+
+## 63 Pass Values To Dependencies ##
+
+## 64 Read Values From Child Charts ##
+
+## 65 Use Values Not Exported ##
+
+## 66 Hooks ##
+
+## 67 Create And Use A Hook ##
+
+## 68 Testing Introduction ##
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# HELM Examples #
+- cant leave in real yaml cause will break the installation 
+
+
+        {{/*can assign variables*/}}
+        {{ $myBool := true}}
+        {{ $myString := "a string"}}
+        {{ $myNum := 5 }}
+
+        {{/*can also assign variables from the values file, once a variable is assigned it cannot later be overriden*/}}
+        {{ $myFlag := .Values.my.flag}}
+
+
+        {{/*#using if logic
+        # - is to remove leading whitespace
+        # nininent is to format yaml */}}
+
+        {{- if .Values.my.flag}}
+        {{"If output" | nindent 2}}
+        {{.Chart.Name}}
+        {{.Chart.Version}}
+        {{.Chart.AppVersion}}
+        {{.Chart.Annotations}}
+        {{.Release.Name}}
+        {{.Release.Namespace}}
+        {{.Release.IsInstall}}
+        {{.Release.IsUpgrade}}
+        {{.Release.Service}}
+        {{.Template.Name}}
+        {{.Template.BasePath}}
+        {{ .Values.my.custom.data | default "not my data" | upper | quote}}
+        {{- else }}
+        {{"ELSE"}}
+        {{- end}}
+
+        {{/*with will only display if there is contents in countries, if it is empty it will display the else case */}}
+        countries:
+        {{- with .Values.my.countries}}
+        {{"Output of with" | nindent 2}}
+        {{- toYaml . | nindent 2 -}}
+        {{- else -}}
+        {{"With conditional countries was empty" | nindent 2}}
+        {{- end }}
+
+        {{/*checking my custom variable */}}
+        myBool:
+        {{- if $myBool }}
+        {{"My bool is true here is a string :"}}
+        {{$myString | nindent 2}}
+        {{- else }}
+        {{"My bool is false here is a number:" | nindent 2}}
+        {{$myNum | nindent 2}}
+        {{- end }}
+
+        {{/* to loop we use range, . is the current value, can also manage indentation without the nindent fucntion */}}
+        looping:
+        {{- range .Values.my.loop}}
+        - {{"Here is a loop"}}
+        - {{.}}
+        {{- end }}
+
+        {{/* looping through the image dictionary */}}
+        loopingDicts:
+        {{- range  $key, $value := .Values.image}}
+        - {{$key}}: {{$value}}
+        {{- end }}
+
+
+
+
+
+
 
 
 # Comments In Helm Templates #

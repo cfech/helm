@@ -129,7 +129,9 @@ kubectl get pod fcc-firstchart-84bb59f994-xj4fv -o yaml
         helm install myfirstchart firstchart
                        [name]      [path to chart]
 
+- download the dependencies with, they are stored in the charts folder
 
+        helm dependency update myChart
 
 ## Upgrade ##
 - upgrade

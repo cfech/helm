@@ -2,25 +2,6 @@ apiVersion: v2
 name: firstchart
 description: A Helm chart for Kubernetes
 
-icon: myIcon.jpg
-keywords:
-  - learning
-  - helm
-
-home: www.mywebsite.com
-
-sources:
-  - www.source1.com
-  - www.source2.com
-
-maintainers:
-  - name: test
-    email: test@test.com
-  - name: Jim
-    email: jim@test.com
-
-
-
 # A chart can be either an 'application' or a 'library' chart.
 #
 # Application charts are a collection of templates that can be packaged into versioned archives
