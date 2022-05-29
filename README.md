@@ -51,7 +51,7 @@ would install the apache chart
 
 - Use helm cli instead of kubectl to update installations
 
-- helm utilizes intelligent installations, it will know which order to create kubernetes resources, we dont have to specify
+- helm utilizes intelligent installations, it will know which order to create kubernetes resources, we don't have to specify
 
 - utilizes life cycle hooks, they can be hooked into the lifecycle of the application 
 
@@ -153,7 +153,7 @@ https://www.devopszones.com/2022/01/how-to-install-minikube-in-amazon-linux.html
 
 ## 10 Working with chart repositories ##
 
-- helm does not come with any presintalled repos
+- helm does not come with any pre installed repos
 - see repos with 
 
         helm repo list
@@ -226,7 +226,7 @@ https://lifesaver.codes/answer/hyperkit-+-docker-proxy-get-https-registry-1-dock
 
         2. To connect to primary service (read/write):
 
-            mysql -h mydb-mysql.default.svc.cluster.local -uroot -p"$MYSQL_ROOT_PASSWORD"
+            mysql -h mydb-mysql.default.svc.cluster.local -u root -p"$MYSQL_ROOT_PASSWORD"
 
 
 ## 12 Using same installation name ##
@@ -249,7 +249,7 @@ https://lifesaver.codes/answer/hyperkit-+-docker-proxy-get-https-registry-1-dock
     helm uninstall [name]
 
 
-    Minikub start
+    Minikube start
 
 
 ## 14 Providing custom values ##
@@ -287,7 +287,7 @@ https://lifesaver.codes/answer/hyperkit-+-docker-proxy-get-https-registry-1-dock
 
 ## 16 More about upgrade ##
 
-- if you dont pass in the values it will use the default configuration or could use 
+- if you don't pass in the values it will use the default configuration or could use 
 
         helm upgrade mydb bitnami/mysql --reuse-values
 
@@ -492,13 +492,13 @@ https://cloud.netapp.com/blog/cvo-blg-kubernetes-deployment-vs-statefulset-which
 
         helm ls --namespace mynamespace
 
-- to see all namspaces
+- to see all namespaces
 
         kubectl get namespace
 
 - to delete namespace 
 
-        kubectl delete namspace mynamspace 
+        kubectl delete namespace mynamspace 
 
 ## 26 Install or Upgrade ##
 
@@ -539,7 +539,7 @@ https://cloud.netapp.com/blog/cvo-blg-kubernetes-deployment-vs-statefulset-which
 
 ## 31 Clean Up on Failed Updates ##
 
-- will clean up all resources created if any upgrade fails such as configmaps, secrets, pv and pvcs etc ... Would not use this if need to debug
+- will clean up all resources created if any upgrade fails such as configmap, secrets, pv and pvcs etc ... Would not use this if need to debug
 
         helm upgrade mywebserver bitnami/apache --cleanup-on-failure
 ## Quiz 2 Commands Deep Dive ##
@@ -795,12 +795,12 @@ Which of the following should be used to rollback to a previous successful insta
 - get the release records/history? 
 
         helm history mws-de
-- ouput 
+- output 
         REVISION	UPDATED                 	STATUS  	CHART        	APP VERSION	DESCRIPTION     
         1       	Sun May 22 00:15:21 2022	deployed	tomcat-10.2.3	10.0.21    	Install complete
 
 
-- another usefull comand 
+- another useful command 
 
         kubectl get secret sh.helm.release.v1.mws-de.v1 -o yaml
                                 [secret name]
@@ -837,7 +837,7 @@ Which of the following should be used to rollback to a previous successful insta
                 - test-connection.yaml
 - chart.yaml # metadata of our chart 
 - values.yaml # contains all the values that will be used in the templates, can be overridden or used to override defaults
-- .helmigore # specifies files you dont want included in your helm chart
+- .helmignore # specifies files you don't want included in your helm chart
 
 
 ## 34 Install The Chart ##
@@ -905,7 +905,7 @@ firstchart/Chart.yaml
 
 
 ## 36 Chart YAML Part 2 ##
-- can provide an icon iwth a jpg or url, tool like rancher will use this when rendering your app
+- can provide an icon with a jpg or url, tool like rancher will use this when rendering your app
 
 - keywords: words that match your project, in the form of yaml list 
 
@@ -944,9 +944,9 @@ firstchart/values.yaml
 
 - replicaCount: first piece of our values.yaml, says how many pods we want 
 
-- image: spec of the image we want to use, the pullpolicy  and any tags, can also specify the registry, these are referenced in the deployment.yaml, can also pass in any imagePullSecrets to authenticate with the repo 
+- image: spec of the image we want to use, the pull policy  and any tags, can also specify the registry, these are referenced in the deployment.yaml, can also pass in any imagePullSecrets to authenticate with the repo 
 
-- serviceAccount: tells us whether to create onem any annotations or names to be passed on to the service account. 
+- serviceAccount: tells us whether to create any annotations or names to be passed on to the service account. 
 
 - pod annotations
 
@@ -1189,7 +1189,7 @@ https://helm.sh/docs/chart_template_guide/function_list/#nindent
         {{ $myString := "a string"}}
         {{ $myNum := 5 }}
 
-        {{/*can also assign variables from the values file, once a variable is assigned it cannot later be overriden*/}}
+        {{/*can also assign variables from the values file, once a variable is assigned it cannot later be overridden*/}}
         {{ $myFlag := .Values.my.flag}}
 
         {{- if $myBool }}
@@ -1201,7 +1201,7 @@ https://helm.sh/docs/chart_template_guide/function_list/#nindent
         {{- end }}
 
 ## 50 Using Loops ##
-        {{/* to loop we use range, . is the current value, can also manage indentation without the nindent fucntion */}}
+        {{/* to loop we use range, . is the current value, can also manage indentation without the nindent function */}}
         looping:
           {{- range .Values.my.loop}}
           - {{"Here is a loop"}}
@@ -1240,7 +1240,7 @@ https://helm.sh/docs/chart_template_guide/function_list/#nindent
 - can use helper functions in other template helper functions by using the "include" function to include your created template function
 
 ## 56 Create And Use Custom Templates ##
-- fololows this syntax 
+- follows this syntax 
 
         {{/* my template comment */}}
         {{- define "firstchart.mytemplatefunction" -}}
@@ -1370,7 +1370,7 @@ dependencies:
 
 - can us placeholders for version ^1.3.x will look for the next major version less then 2.0.0
 
-- ~ orks for patching minor versions, ~1.3.4 will look for something > 1.3.4 < 1.4.0
+- ~ works for patching minor versions, ~1.3.4 will look for something > 1.3.4 < 1.4.0
 
 ## 60 Using Repo Name ##
 - can use a local repo name instead of the url if you want
@@ -1385,7 +1385,7 @@ dependencies:
         mysql:
           enabled: false
 
-- update the depenedencies in chart.yml with the condition flag 
+- update the dependencies in chart.yml with the condition flag 
 
         dependencies:
           - name: mysql
@@ -1439,49 +1439,678 @@ in values.yaml
 
 
 ## 63 Pass Values To Dependencies ##
+- by default installed charts use default values, we can override those by adding what we want to override to our own values.yaml
 
+        tomcat:
+          service:
+            type: NodePort
+            nodePort: 30007
+
+- for mysql 
+
+        mysql:
+          auth
+            rootPassword: test1234
+          primary:
+            service
+              type: nodePort
+              nodePort 30788
 ## 64 Read Values From Child Charts ##
+- can also read values from dependent chart into parent chart by 
 
+- child chart must have an export
+- import-values takes a list and can import whatever is exported by child chart
+
+- now our chart.yaml  is 
+
+        dependencies:
+          - name: mysql
+            version: "8.8.6"
+            repository: http://charts.bitnami.com/bitnami
+            tags:
+              - enabled
+            import-values:
+              - service 
+
+              
 ## 65 Use Values Not Exported ##
+- what if your child chart does not export the service value?
+- instead of just listing the element name we must use dot notation to access it. and use the child key, then you give it a name with the parent key
+- now our chart.yaml  is 
+
+        dependencies:
+          - name: mysql
+            version: "8.8.6"
+            repository: http://charts.bitnami.com/bitnami
+            tags:
+              - enabled
+            import-values:
+              - child: primary.service
+                parent: mysqlService
+
+- can then access in yaml files with 
+- anything under the mysqlService in the child chart will also be available
+
+.Values.mysqlService
 
 ## 66 Hooks ##
+- allow you to take a special actions during release process, such as storing data in a db or backing up a db
+- it is just a yaml file,
+- it gets marked with the helm.sh/hook annotation. T
+- There are many options that can be passed such as pre-install, post-install, pre/post-delete, pre/post-upgrade, pre/post-rollback, test, 
+- deletion policy of hook before-hook-creation, hook succeeded, hook failed. 
+- Can created different types of objects like pods with hooks
+- can give hooks a weight to decide when they are run
 
+- hookpod.yaml
+        apiVersion: v1
+        kind: Pod
+        metadata:
+          name: "{{ include "firstchart.fullname" . }}-pre-install"
+        annotations:
+          "helm.sh/hook": pre-install
+          "helm.sh/hook-weight": "1"
+          "helm.sh/hook-delete-policy":"hook-succeeded"
+        spec:
+          containers:
+            - name: pre-install
+              image: busybox
+              imagePullPolicy: IfNotPresent
+              command: ['sh', '-c', 'echo Pod is Running']
+          restartPolicy: OnFailure
 ## 67 Create And Use A Hook ##
-
+- annotations are really responsible for creating the hook
+- set the type and the weight 
+- the pre-install pod will hang if we do not enact a hook delete policy, options are before-hook-creation, hook succeeded, hook failed.
 ## 68 Testing Introduction ##
+- there is a test folder created  in the templates for your chart
+- the test is a hook that depends on the test phase
+- you can run it with 
+
+        helm test
+
+- it creates a pod of type busyBox it uses wget to test the chart (nginx specific)
+
+        apiVersion: v1
+        kind: Pod
+        metadata:
+          name: "{{ include "firstchart.fullname" . }}-test-connection"
+        labels:
+          {{- include "firstchart.labels" . | nindent 4 }}
+        annotations:
+          "helm.sh/hook": test
+        spec:
+          containers:
+            - name: wget
+              image: busybox
+              command: ['wget']
+              args: ['{{ include "firstchart.fullname" . }}:{{ .Values.service.port }}']
+          restartPolicy: Never`
+
+## 69 Test Your Chart ##
+- have to have an installation before we can run a test
+- can write you own tests to test what you are looking for 
+- test manifest is picked up on installation
+
+- 
+
+        helm test myInstall
+                     [install name]
+
+- output 
+
+        helm test hook
+        NAME: hook
+        LAST DEPLOYED: Sat May 28 15:52:51 2022
+        NAMESPACE: default
+        STATUS: deployed
+        REVISION: 1
+        TEST SUITE:     hook-test-connection
+        Last Started:   Sat May 28 15:52:59 2022
+        Last Completed: Sat May 28 15:53:01 2022
+        Phase:          Succeeded
+        NOTES:
+        1. Get the application URL by running these commands:
+        export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=hook,app.kubernetes.io/instance=hook" -o jsonpath="{.items[0].metadata.name}")
+        export CONTAINER_PORT=$(kubectl get pod --namespace default $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+        echo "Visit http://127.0.0.1:8080 to use your application"
+        kubectl --namespace default port-forward $POD_NAME 8080:$CONTAINER_PORT
+
+- can define deletion policy for the tests pods, we don't want this if the test fails though
+
+## Quiz 5 Advanced Charts ##
+Question 1:
+Which of the following will pull the dependency and store it under charts folder
+
+        helm dependency update <chartname>
+
+
+Question 2:
+Which of the following should be used to conditionally add multiple dependencies when are using the same condition
+
+                tags
+
+Question 3:
+Which of the following is used to prioritize the order of execution of a hook
+
+        hook-weight
+
+# Section 8 Repository #
+- http endpoints that hold the charts in .tgz format 
+
+## 71 Setup A Local Repository ##
+- first step create a directory then create the index.yaml file
+
+        helm repo index chartsrepo
+                        [path to repo]
+
+- index.yaml if created with 
+
+        apiVersion: v1
+        entries: {}
+        generated: "2022-05-28T16:09:59.281727359-04:00"
+
+- then can add a packaged chart to the repo by adding charts to the directory then run 
+
+        helm repo index chartsrepo
+
+- this will update the index.yaml for us with the info of the tgz(s) in the repo
+## 72 Install Python ##
+- install on your machine to host a web server with it
+
+## 73 Host The Repository On A Web Server ##
+- could use apache or nginx 
+- or could put on s3
+- or for local demo could use python
+
+        python3 -m http.server --bind 127.0.0.1 8080
+
+- will just host the directory you are in, can go to in web browser or use cli
+
+## 74 Use The Repository ##
+
+- see the repos we have
+
+        helm repo list 
+
+- to add our own repository 
+
+        helm repo add localrepo http://localhost:8080
+
+## 75 Install Using Helm Pull ##
+- can install using helm pull then install
+
+        helm pull local/hook
+                  [repo]/[package name]
+
+## 76 Update Repositories ##
+- can add another chart to the directory then can update the repositories with 
+
+        helm repo index chartsrepo
+                        [directory]
+
+- search command
+
+        helm search repo hook
+                        [chart nam]
+
+- after adding new item to the chart repo we must update the local cache with 
+
+
+        helm repo update
+
+## 77 Use Github Pages ##
+- can host a free chart repo here if we want
+- upload your chart repo directory to a repository
+- can deploy your index yaml with github repo
+
+## 78 OCI Repositories ##
+- open container initiatives registry
+
+- must run it on by setting environment variable to turn on experimental feature
+
+
+        export HELM_EXPERIMENTAL_OCI=1
+
+## 79 Use OCI Repo ##
+- can run it in docker 
+
+- pulls the docker hub registry image and runs in at local host 5000
+
+        docker run -d --name oci-registry -p 5000:5000 registry
+
+- can package your chart and push it to the registry
+
+        helm push firstchart-0.1.0.tgx oci://localhost:5000/helm-charts
+
+- will push the packaged chart to the local registry inside a directory of helm-charts
+
+
+- can use show all to see all the info in the registry
+
+        helm show all oci://localhost:5000/helm-charts/firstchart [--version] 
+
+- can pull the chart onto your machine with 
+
+         helm pull oci://localhost:5000/helm-charts/firstchart:0.1.0
+        
+- can also install, upgrade etc ...
+
+## Quiz 6 Repositories ##
+
+Question 1:
+Any web server that can serve static data can be used to host a helm repository
+
+        true
+
+Question 2:
+Before a chart is pushed to a OCI registry it should be saved to a cache
+
+        true
+
+Question 3:
+Which of the following command will put the chart in the OCI Registry Cache
+
+        helm chart save
+
+Question 4:
+What is the command used to create a index file for a chart repo
+
+
+        helm repo index
+
+## Assignment 5 Repositories ##
+- push chart to local repo, github pages and oci registry
+
+
+        helm push tc-0.1.0.tgx oci://localhost:5000/helm-charts
+
+        helm push tc-0.1.0.tgx local
+
+        helm push tc-0.1.0.tgx githubLink
+
+
+# Section 9 Chart Security #
+
+## 80 Introduction ##
+
+- charts have 2 parties, the provider and the user,
+- how do we verify the chart is authenticate and has not been modified in any way?
+- helm have built in support for integrity - PGP
+- provider generates key pair, private and public 
+- when chart is generated it also generates a .prov file which holds the signature
+- can verify with 
+
+        helm install --verify 
+
+- this command uses the public key to regenerate the signature
+
+## 81 PGP Key Gen Installation ##
+
+- need a keypair to sign and secure the charts
+- will use gnupg to generate these, can install with whatever, yum, brew, apt etc.
+
+- check version with 
+
+        gpg --version
+
+- keys will be store at ~/.gnupg
 
 
 
 
+        
+
+
+## 82 Generate PGP Keys ##
+
+- generate keys with 
+
+        gpg --gen-key
+
+- answer prompts an put in a passphrase: helm 
+
+- then have to export the keys toa  .gpg file if not in one already
+
+## 83 Sign And Verify ##
+- package and sign with 
+
+        helm package --sign --key cfech44@gmail.com --keyring ~/.gnupg/secring.gpg hook -d chartsrepo/
+                                     [key alias]                 [location of key]           [where to put the package chart]
+
+- this creates the hook....tgz and the hook....tgz.prov file
+- prov = provenance, holds the signature and hash
+
+- can verify with 
+
+        helm hook-0.1.0.tgz --keyring ~/.gnupg/secring.gpg
+
+- example output 
+        Signed by: Connor ....
+
+        Using Key With Fingerprint: 689DCB682A8EB0767BA293546368840D98CCD4E0
+        Chart Hash Verified: sha256:dbad2a8ca089fef3324076299d1225c984d23190a8b4f29464f18bc85d47e44
+## 84 Verify During Install ##
+
+- remember to update chart repo index
+
+        helm repo index chartsrepo
+
+- to install and verify
+
+        
+        helm install --verify --keyring ~/.gnupg/secring.gpg hookverify local/hook
+## Assignment 6 Chart Security ##
+
+- secure the tc chart
+- generate a new key pair 
+- package the chart, sign the chart and verify it then install and verify
+
+
+        gpg --gen-key
+
+
+
+        helm package --sign --key mykey@test.com --keyring ~/.gnupg/secring.gpg tc -d chartsrepo/
+                                     [key alias]                 [location of key]           [where to put the package chart]
+
+
+        helm tc-0.1.0.tgz --keyring ~/.gnupg/secring.gpg
+
+
+        helm install --verify --keyring ~/.gnupg/secring.gpg hookverify local/tc
+
+
+
+# Section 10 Real Usecase #
+- deploying a microservice application using helm
+- built using java and spring boot
+- will use the docker image to deploy to the cluster
+- need to configure the liveness and readiness probe, spring boot comes pre-configured with this
+
+## 86 Steps ##
+
+- Create chart and configure image 
+- update deployment, liveness and readiness probes
+- configure NodePort to access the service outside the cluster
+- Add MySql Dependency in chart.yaml
+- Pass Values , pass ports, password, db name etc ..
+- Use ConfigMap , use a config map to run the db script inside it 
+- Release and Test
+
+## 87 Create Chart ##
+- have to create a chart for the microservice app
+
+         helm create couponservice
+
+- clean it up, don't need hpa, service account etc .. make sure to clean up helpers.tpl if it references the deleted objects
+- configure the correct image
+
+## 88 Update Deployment ##
+- updating liveness and readiness probe
+- spring boot can be configured to expose these 
+- here we are looking for port 9091 for both
+
+        ports:
+            - name: tomcat
+              containerPort: 9091
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: tomcat
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: tomcat
+
+## 89 Update Service ##
+- must configure the service type, that is injected into the service.yaml from values.yaml we want it to be NodePort, which can be exposed outside the cluster
+
+        service:
+          type: NodePort
+          port: 9091 # port exposed inside the cluster 
+          targetPort: 9091 # port app is using
+          nodePort: 32761 # port exposed outside the cluster, should be higher order port 
+
+- then reference these in the service.yaml
+
+
+## 90 Add Dependency ##
+- add mysql chart dependency
+
+- chart.yaml
+
+        dependencies:
+          - name: mysql
+            version: 8.8.6
+            repository: "@bitnami"
+
+- then run to pull the dependency
+
+        helm dependency update
+## 91 Configure Values ##
+- configuring values for mysql in values.yaml
+- telling it the password to use
+- what port to run on
+
+        mysql:
+          auth:
+            rootPassword: test1234
+          database: mydb
+            primary:
+            type: NodePort
+            nodePort: 32762
+          fullnameOverride: docker-mysql
+
+
+## 92 Add Config Map ##
+- need a config map that holds the instructions to run in the sql database once it comes up
+- can provide the initdbScriptsConfigMap with the name of the config map and it will be run when the pod comes up
+
+  mysql:
+    auth:
+      rootPassword: test1234
+      database: mydb
+    primary:
+      service:
+        type: NodePort
+        nodePort: 32762
+    fullnameOverride: docker-mysql
+    initdbScriptsConfigMap: mysql-initdb-config
+
+## 94 Release and Test ##
+
+- first have to install dependencies if have not yet, from inside the folder.. or could tac -u onto the install command 
+
+        helm dependency update
+
+- package the chart
+
+        helm package couponservice
+
+- install the chart
+
+        helm install couponservice couponservice-0.1.0.tgz
+
+- output 
+- we overrode the service and configmap names because of the fullnameOverride as well as create teh mysql-initdb-config
+
+        kubectl get svc
+        NAME                    TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+        couponservice           NodePort    10.107.107.225   <none>        9091:32761/TCP   21s
+        docker-mysql            NodePort    10.108.18.0      <none>        3306:32762/TCP   21s
+        docker-mysql-headless   ClusterIP   None             <none>        3306/TCP         21s
+        kubernetes              ClusterIP   10.96.0.1        <none>        443/TCP          6d23h
+
+        kubectl get configmap
+        NAME                  DATA   AGE
+        docker-mysql          1      55s
+        kube-root-ca.crt      1      6d23h
+        mysql-initdb-config   1      55s
+
+- can see pods
+
+        kubectl get pods
+        
+        NAME                             READY   STATUS    RESTARTS      AGE
+        couponservice-77b7489556-l6msq   1/1     Running   2 (54s ago)   111s
+        docker-mysql-0                   1/1     Running   0             111s
+
+
+- could then connect to mysql with mysql workbench etc ...
+- could also access api endpoint for data in the db
+
+## Assignment 7 ##
+- secure the coupon service chart and push to repo on github pages
 
 
 
 
+        gpg --gen-key
+
+        helm package --sign --key mykey@test.com --keyring ~/.gnupg/secring.gpg couponservice
+                                     [key alias]                 [location of key]           
+
+
+# Section 11 Starters #
+
+- What are helm starters?
+
+## 95 Introduction ##
+- helm starters allows us to create application specific chart, ie chart for mysql or apache etc ..
+- could use a public starter or turn our chart into a starter
+- just have to replace all references to the chart name with <CHARTNAME> placeholder
+- can then create the starter with 
+
+        helm create --starter chartname starterName
+
+- helm expects you to store your charts in 
+
+        helm env HELM_DATA_HOME
+- output 
+
+        HELM_DATA_HOME="/home/cfech/.local/share/helm"
+
+
+- side note 
+
+- shows all envs
+
+        helm env 
+
+## 96 Create The Starters Folder ##
+- have to create a starter folder to store our starter
+
+- will be stored at 
+
+        HELM_DATA_HOME="/home/cfech/.local/share/helm"
+
+- create a subfolder called helm and in there called starters
+
+## 97 Create A Starter ##
+- creating starter chart from existing couponservice chart
+- open an existing chart and find and replace the name with <CHARTNAME>
+- ex: couponservice -> <CHARTNAME>
+
+
+## 98 Create Chart Using Starter ##
+- create the chart with 
+- starter has to be in 
+
+        HELM_DATA_HOME="/home/cfech/.local/share/helm/starters"
+
+- create with
+
+        helm create --starter springwebappmysql demostarter
+                                [app to use]     [starter name
+                                ]
+
+- when you create the starter <ChARTNAME> gets replaced with the name you gave the chart ie: demostarter
+
+# Section 12 Plugins ##
+https://helm.sh/docs/helm/helm_plugin/
+## 99 Introduction ##
+- can enhance helm functionality by using plugins
+- can use open source plugins or create your own 
+- every plugin hasa  plugin.yaml file, this is our config
+
+https://github.com/salesforce/helm-starter
+
+- in the yaml file many things are stated such as name, version, usage, description, ignoreFlags, useTunnel and command
+- command is what is run when the plugin is called
+- most plugins have a starter.sh script
+- can write any language and call it in starter.sh as long as the system supports it
+## 100 Install And Use Plugin ##
+- to install helm plugin, can take in git or .tar.gz
+
+        helm plugin install [url] [--version]
+
+- to list plugins 
+
+        helm plugin list
+
+- to get help
+
+        helm starter --help
+                [plugin name]
+
+- can list all current starters, install, update, inspect delete starters
+
+
+- can update plugins with
+
+        helm plugin update starter
+
+- can remove plugin with 
+
+        helm plugin remove starter
+
+## 101 Create Custom Plugin ##
+- to create a custom plugin create  plugin.yaml file
+- configure and install it with 
+
+        helm plugin [path to dir with plugin.yaml]
+
+- call with 
+
+        helm myplugin
+                [name]
+
+## 102 Few More Things ##
+- some more elements that can go in the plugin.yaml
+- can use the ignoreFlags element, should be true or false, this will tell the plugin if it should allow flags to be passed on
+
+        helm myplugin -myflag
+
+- another option is platformCommand , which is used to provide different commands based on the OS, if none of the architectures match it will call the sub command, else it will call the default command
 
 
 
+## Quiz 7 Plugins ##
+Question 1:
+Which of the following is mandatory file for a plugin
 
+        plugin.yaml
 
+Question 2:
+A plugin can be created in any programming language
 
+        true
 
+# Section 13 More Helm
 
+## 103 Introduction ##
+- in helm 3.0 + we can do schema validation of the values yaml file, ie make sure that things are a certain filetype and only of the the appropriate options
+- can create a values.schema.json to set the schema for your values file
 
+## 104 Validate ##
+- in order to validate a values.yaml must have a values.schema.yaml
+- you can use this with 
 
+        helm lint [values location]
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+## 105 Generate Schema ##
 
 
 
@@ -1500,13 +2129,13 @@ in values.yaml
         {{ $myString := "a string"}}
         {{ $myNum := 5 }}
 
-        {{/*can also assign variables from the values file, once a variable is assigned it cannot later be overriden*/}}
+        {{/*can also assign variables from the values file, once a variable is assigned it cannot later be overridden*/}}
         {{ $myFlag := .Values.my.flag}}
 
 
         {{/*#using if logic
         # - is to remove leading whitespace
-        # nininent is to format yaml */}}
+        # nindent is to format yaml */}}
 
         {{- if .Values.my.flag}}
         {{"If output" | nindent 2}}
@@ -1545,7 +2174,7 @@ in values.yaml
         {{$myNum | nindent 2}}
         {{- end }}
 
-        {{/* to loop we use range, . is the current value, can also manage indentation without the nindent fucntion */}}
+        {{/* to loop we use range, . is the current value, can also manage indentation without the nindent function */}}
         looping:
         {{- range .Values.my.loop}}
         - {{"Here is a loop"}}
@@ -1566,8 +2195,8 @@ in values.yaml
 
 
 # Comments In Helm Templates #
-- must use /* */ or it will be read in, yaml comments dont work
-        {{/* .Values.my.cusom.data*/}}
+- must use /* */ or it will be read in, yaml comments don't work
+        {{/* .Values.my.custom.data*/}}
 ## Other stuff ##
         
         # .bashrc
