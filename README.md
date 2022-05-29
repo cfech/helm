@@ -2111,7 +2111,9 @@ A plugin can be created in any programming language
         helm lint [values location]
 
 ## 105 Generate Schema ##
-
+- can generate a values.schema.json using a valid values.yaml file
+- first convert values.yaml to json
+- and go to jsonschema.net and paste in your json to create a json schema
 
 
 
